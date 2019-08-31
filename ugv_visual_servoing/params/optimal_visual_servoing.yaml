@@ -1,0 +1,74 @@
+%YAML:1.0
+ros:
+  pc_2d_topic: "/husky/front_laser/scan"
+  pc_3d_topic: "/husky/velodyne_points"
+  ptz_topic: "/axis_ptz/cmd"
+  image_topic: "/husky/ptz/image_raw/compressed"
+  pan_topic: "/husky/joint_pan_position_controller/command"
+  tilt_topic: "/husky/joint_tilt_position_controller/command"
+  cmd_vel_topic: "/husky/cmd_vel"
+  gt_topic: "/gazebo/link_states"
+  tag_topic: "/gazebo/model_states"
+  publish_xy_topic: "/gazebo/set_model_state"
+  vehicle_name: "husky"
+  reference_frame: "world"
+  robot_type: "husky_sim"
+
+
+clustering:
+  cluster_tolerance: 0.25
+  min_cluster_size: 4
+  max_cluster_size: 1000
+  inlier_fraction: 0.85
+  inlier_tolerance: 0.05
+  min_line_segment_size: 25
+  max_irregular_cluster_size: 24
+
+aruco:
+  adaptiveThreshWinSizeMin: 3
+  adaptiveThreshWinSizeMax: 23
+  adaptiveThreshWinSizeStep: 10
+  adaptiveThreshWinSize: 21
+  adaptiveThreshConstant: 7
+  minMarkerPerimeterRate: 0.03
+  maxMarkerPerimeterRate: 4.0
+  polygonalApproxAccuracyRate: 0.05
+  minCornerDistanceRate: 10.0
+  minDistanceToBorder: 3
+  minMarkerDistance: 10.0
+  minMarkerDistanceRate: 0.05
+  cornerRefinementMethod: 0
+  cornerRefinementWinSize: 5
+  cornerRefinementMaxIterations: 30
+  cornerRefinementMinAccuracy: 0.1
+  markerBorderBits: 1
+  perspectiveRemovePixelPerCell: 8
+  perspectiveRemoveIgnoredMarginPerCell: 0.13
+  maxErroneousBitsInBorderRate: 0.04
+  minOtsuStdDev: 5.0
+  errorCorrectionRate: 0.6
+  markerLength: 0.1
+
+camera:
+  fx: 554.256258422
+  fy: 554.256258422
+  cx: 320
+  cy: 240
+  k1: 0.0
+  k2: 0.0
+  p1: 0.0
+  p2: 0.0
+
+trajectory:
+  x_min: -5
+  x_max: 5
+  y_min: -5
+  y_max: 5
+  z_min: 5
+  z_max: 5
+  num_bezier_pts: 4
+  num_traj_pts: 5000
+  publish_rate: 100
+  ros_topic: "/gazebo/set_model_state"
+  model_name: "aruco"
+  reference_frame: "world"
