@@ -18,7 +18,7 @@
             <origin rpy="0.0 0 0" xyz="0 0 0"/>
             <geometry>
                 <!--<box size="0.8 0.8 0.2"/>-->
-                <mesh filename="package://ugv_visual_servoing/data/meshes/aruco.dae"/>
+                <mesh filename="package://ugv_visual_servoing/data/meshes/aruco_full.dae"/>
             </geometry>
         </visual>
     </link>

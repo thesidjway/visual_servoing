@@ -63,7 +63,7 @@ void OVSWrapper::publishPosition ( double x, double y, double theta ) {
     state.model_name = wrapper_params_.vehicleName;
     state.pose.position.x = x;
     state.pose.position.y = y;
-    state.pose.position.z = 0.125;
+    state.pose.position.z = 0.242277;
     double cy = cos ( theta * 0.5 );
     double sy = sin ( theta * 0.5 );
     double cr = 1;
