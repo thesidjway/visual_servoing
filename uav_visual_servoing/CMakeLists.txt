@@ -33,5 +33,5 @@ find_package (OpenCV REQUIRED)
 find_package (PCL REQUIRED COMPONENTS common io)
 
 
-add_executable(ugv_visual_servoing src/VisualServoing.cpp src/visual_servoing_node.cpp)
-target_link_libraries(ugv_visual_servoing ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} yaml-cpp)
+add_executable(uav_visual_servoing src/VisualServoing.cpp src/visual_servoing_node.cpp)
+target_link_libraries(uav_visual_servoing ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} yaml-cpp)

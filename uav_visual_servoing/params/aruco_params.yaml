@@ -22,8 +22,8 @@ perspectiveRemoveIgnoredMarginPerCell: 0.13
 maxErroneousBitsInBorderRate: 0.04
 minOtsuStdDev: 5.0
 errorCorrectionRate: 0.6
-fx: 554.256258422
-fy: 554.256258422
-cx: 320.0
-cy: 240.0
-markerLength: 0.233333
+fx: 448.1008985853343
+fy: 448.1008985853343
+cx: 376.5
+cy: 240.5
+markerLength: 0.2041666

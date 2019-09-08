@@ -84,7 +84,6 @@ void OVSWrapper::publishPosition ( double x, double y, double theta ) {
 
 
 void OVSWrapper::readWrapperParams ( std:: string params_file ) {
-	std::cout << "WOOT? " << params_file << std::endl;
     YAML::Node config = YAML::LoadFile ( params_file );
     wrapper_params_.K = cv::Mat::eye ( 3 , 3 , CV_32F );
     wrapper_params_.dist = cv::Mat::zeros ( 1 , 4 , CV_64F );
