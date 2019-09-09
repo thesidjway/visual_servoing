@@ -2,17 +2,23 @@
 
 visual_servoing_node::visual_servoing_node() {
     std::string aruco_param_file;
-    std::string camera_topic, odom_topic;
+    std::string camera_topic, odom_topic, husky_odom_topic;
     nh_.param<std::string>("aruco_params", aruco_param_file, "/home/thesidjway/icra_ws/src/visual_servoing/uav_visual_servoing/params/aruco_params.yaml");
     nh_.param<std::string>("camera_topic", camera_topic, "/baroness/downward/camera_/image_raw");
     nh_.param<std::string>("odom_topic", odom_topic, "/baroness/odometry_sensor1/odometry");
+    nh_.param<std::string>("husky_odom_topic", husky_odom_topic, "/husky/husky_odom"); // For debugging only
     detector_.readDetectorParameters(aruco_param_file);
     camera_sub_ =  nh_.subscribe(camera_topic, 1, &visual_servoing_node::imageCallback, this);
     odom_sub_ =  nh_.subscribe(odom_topic, 1, &visual_servoing_node::odomCallback, this);
+    husky_odom_sub_ =  nh_.subscribe(husky_odom_topic, 1, &visual_servoing_node::huskyOdomCallback, this);
     trajectory_pub_ = nh_.advertise <trajectory_msgs::MultiDOFJointTrajectory> (mav_msgs::default_topics::COMMAND_TRAJECTORY, 5);
 }
 
-void visual_servoing_node::odomCallback(const nav_msgs::Odometry_< std::allocator< void > >::ConstPtr odom_msg) {
+void visual_servoing_node::huskyOdomCallback(const nav_msgs::Odometry::ConstPtr odom_msg) {
+    last_husky_pose_ = odom_msg->pose.pose;
+}
+
+void visual_servoing_node::odomCallback(const nav_msgs::Odometry::ConstPtr odom_msg) {
     last_pose_ = odom_msg->pose.pose;
 }
 
@@ -47,27 +53,43 @@ void visual_servoing_node::imageCallback(const sensor_msgs::Image::ConstPtr imag
         if (proj.norm() < 10000) {
             //Based on 4DOF assumption
             geometry_msgs::Pose odom_new;
-            odom_new.position.x = last_pose_.position.x - pt(1);
-            odom_new.position.y = last_pose_.position.y - pt(0);
             double roll, pitch, yaw;
             tf::Quaternion q(last_pose_.orientation.x, last_pose_.orientation.y, last_pose_.orientation.z, last_pose_.orientation.w);
             tf::Matrix3x3 quaternion(q);
             quaternion.getRPY(roll, pitch, yaw);
+            
+            double hroll, hpitch, hyaw;
+            tf::Quaternion qh(last_husky_pose_.orientation.x, last_husky_pose_.orientation.y, last_husky_pose_.orientation.z, last_husky_pose_.orientation.w);
+            tf::Matrix3x3 hquaternion(qh);
+            hquaternion.getRPY(hroll, hpitch, hyaw);
+
             mav_msgs::EigenTrajectoryPoint trajectory_point;
             trajectory_msgs::MultiDOFJointTrajectory samples_array;
             trajectory_msgs::MultiDOFJointTrajectoryPoint trajectory_point_msg;
             double x_target, y_target, z_target;
-            trajectory_point.position_W.x() = odom_new.position.x;
-            trajectory_point.position_W.y() = odom_new.position.y;
-            trajectory_point.position_W.z() = 2;
-            trajectory_point.setFromYaw(yaw);
-            samples_array.points.clear();
-            tf::Quaternion quat = tf::Quaternion(tf::Vector3(0.0, 0.0, 1.0), 0);
-            trajectory_point.setFromYaw(tf::getYaw(quat));
-            mav_msgs::msgMultiDofJointTrajectoryPointFromEigen(trajectory_point, &trajectory_point_msg);
-            samples_array.points.push_back(trajectory_point_msg);
-            trajectory_pub_.publish(samples_array);
-            std::cout <<odom_new.position.x << " " << odom_new.position.y << std::endl;
+            
+            int n_seq = 0;
+            for (double i = 0.0; i < 1.01; i+= 0.05) {
+                samples_array.header.seq = n_seq;
+                n_seq++;
+                samples_array.header.stamp = ros::Time::now();
+                samples_array.header.frame_id = "world";
+                samples_array.points.clear();
+//                 odom_new.position.x = last_pose_.position.x + (- pt(1) * cos(yaw) + pt(0) * sin(yaw))*i;
+//                 odom_new.position.y = last_pose_.position.y + (- pt(1) * sin(yaw) - pt(0) * cos(yaw))*i;
+                odom_new.position.x = last_pose_.position.x * (1.0 - i) + last_husky_pose_.position.x * i;
+                odom_new.position.y = last_pose_.position.y * (1.0 - i) +  last_husky_pose_.position.y * i;
+                trajectory_point.position_W.x() = odom_new.position.x;
+                trajectory_point.position_W.y() = odom_new.position.y;
+                trajectory_point.position_W.z() = 3.25;
+                tf::Quaternion quat = tf::Quaternion(tf::Vector3(0.0, 0.0, 1.0), hyaw);
+                trajectory_point.setFromYaw(tf::getYaw(quat));
+                mav_msgs::msgMultiDofJointTrajectoryPointFromEigen(trajectory_point, &trajectory_point_msg);
+                samples_array.points.push_back(trajectory_point_msg);
+                trajectory_pub_.publish(samples_array);
+                ros::Duration(0.0000001).sleep();
+                                
+            }
         }
         cv::imshow("Read Image", read_image);
         cv::waitKey(1);

@@ -7,12 +7,13 @@ find_package (catkin REQUIRED COMPONENTS
   rospy
   cv_bridge
   std_msgs 
+  eigen_conversions
   )
 
 catkin_package(
 #	INCLUDE_DIRS include
 	LIBRARIES ugv_visual_servoing
-	CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge    
+	CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge  eigen_conversions
 )
 
 include_directories(
